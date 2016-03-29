@@ -28,15 +28,17 @@ clock = pygame.time.Clock()
 
 img = pygame.image.load('Helicopter.png')
 
+
 def score(count):
     font = pygame.font.SysFont('freesansbold.ttf', 20)
-    # font = pygame.font.Font('freesansbold.ttf', 20)
     text = font.render("Score: "+str(count), True, white)
-    surface.blit(text, [0,0])
+    surface.blit(text, [10, 0])
 
-def blocks(x_block, y_block, block_width, block_height, gap, colorChoice):
-    pygame.draw.rect(surface, colorChoice, [x_block, y_block, block_width, block_height])
-    pygame.draw.rect(surface, colorChoice, [x_block, y_block+block_height+gap, block_width, surfaceHeight])
+
+def blocks(x_block, y_block, block_width, block_height, gap, color_choices):
+    pygame.draw.rect(surface, color_choices, [x_block, y_block, block_width, block_height])
+    pygame.draw.rect(surface, color_choices, [x_block, y_block+block_height+gap, block_width, surfaceHeight])
+
 
 def replay_or_quit():
     for event in pygame.event.get([pygame.KEYDOWN, pygame.KEYUP, pygame.QUIT]):
@@ -48,20 +50,23 @@ def replay_or_quit():
         return event.key
     return None
 
-def makeTextObjs(text, font):
-    textSurface = font.render(text, True, sunset)
-    return textSurface, textSurface.get_rect()
 
-def msgSurface(text):
-    smallText = pygame.font.SysFont('freesansbold.tff', 20)
-    largeText = pygame.font.SysFont('freesansbold.tff', 150)
+def make_text_object(text, font):
+    text_surface = font.render(text, True, sunset)
+    return text_surface, text_surface.get_rect()
 
-    titleTextSurf, titleTextRect = makeTextObjs(text, largeText)
-    titleTextRect.center = surfaceWidth / 2, surfaceHeight / 2
-    surface.blit(titleTextSurf, titleTextRect)
 
-    typTextSurf, typTextRect = makeTextObjs('Press any key to continue', smallText)
-    typTextRect.center = surfaceWidth / 2, ((surfaceHeight / 2) )
+def message_surface(text):
+    small_text = pygame.font.SysFont('freesansbold.tff', 30)
+    large_text = pygame.font.SysFont('freesansbold.tff', 150)
+
+    title_text_surf, title_text_rect = make_text_object(text, large_text)
+    title_text_rect.center = surfaceWidth / 2, surfaceHeight / 2
+    surface.blit(title_text_surf, title_text_rect)
+
+    typ_text_surf, typ_text_rect = make_text_object('Press any key to continue', small_text)
+    typ_text_rect.center = surfaceWidth / 2, (surfaceHeight / 2 + 100)
+    surface.blit(typ_text_surf, typ_text_rect)
 
     pygame.display.update()
     time.sleep(1)
@@ -70,11 +75,14 @@ def msgSurface(text):
         clock.tick()
     main()
 
-def gameOver():
-    msgSurface('KaBoom!')
+
+def game_end():
+    message_surface('KaBoom!')
+
 
 def helicopter(x, y, image):
     surface.blit(img, (x, y))
+
 
 def main():
     x = 150
@@ -87,7 +95,7 @@ def main():
     gap = imageHeight * 3
     block_move = 4
     current_score = 0
-    blockColor = color_choices[randrange(0, len(color_choices))]
+    block_color = color_choices[randrange(0, len(color_choices))]
     game_over = False
 
     while not game_over:
@@ -104,20 +112,20 @@ def main():
         surface.fill(black)
         helicopter(x, y, img)
 
-        blocks(x_block, y_block, block_width, block_height, gap, blockColor)
+        blocks(x_block, y_block, block_width, block_height, gap, block_color)
         score(current_score)
         x_block -= block_move
 
         if x_block < (-1 * block_width):
             x_block = surfaceWidth
             block_height = randint(0, (surfaceHeight / 2))
-            blockColor = color_choices[randrange(0, len(color_choices))]
+            block_color = color_choices[randrange(0, len(color_choices))]
             current_score += 1
 
         if x + imageWidth > x_block:
             if y + imageHeight > block_height + gap:
                 if x < block_width + x_block:
-                    gameOver()
+                    game_end()
 
         if 3 <= current_score < 5:
             block_move = 5
